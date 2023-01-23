@@ -6,7 +6,8 @@
 #         -a switch to get help
 #         -move every script into one single big script
 
-export GITPATH="/home/laio/Documents/Git\!/"
+export GITPATH="$(cat /usr/local/etc/yaah/gitpath)"
+#"/home/laio/Documents/Git\!/"
 
 if [[ -z $1 ]];then
     echo "Erreur : il faut fournir des arguments"
@@ -25,6 +26,8 @@ case $switch in
         yaah-remove $@;;
     "-rs")
         yaah-remove -s $@;;
+    "-g")
+        yaah-gitpath $@;;
     *)
         echo "Erreur : option $switch inconnue"
         yaah-help;;

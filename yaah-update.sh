@@ -11,7 +11,7 @@ fi
 nbu=0
 
 # cycle through the packages found in $GITPATH
-for i in ${GITPATH}*;do
+for i in "${GITPATH}"*;do
     if [[ -d $i ]];then
         cd $i
         pkg=$(echo $i | cut -d "/" -f "6")

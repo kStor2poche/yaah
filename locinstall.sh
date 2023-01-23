@@ -1,5 +1,6 @@
 #! /bin/bash
 
-sudo cp yaah.sh /usr/local/bin/yaah
-sudo cp yaah-update.sh /usr/local/bin/yaah-update
-sudo cp yaah-install.sh /usr/local/bin/yaah-install
+for i in yaah*;do
+    sudo cp $i /usr/local/bin/${i/.sh}
+    echo /usr/local/bin/${i/.sh}
+done

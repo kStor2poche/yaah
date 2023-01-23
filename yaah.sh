@@ -8,15 +8,24 @@
 
 export GITPATH="/home/laio/Documents/Git\!/"
 
-if [[ $1 = "-u" ]];then
-    shift
-    yaah-update
-    #yaah-install $@        not implemented yet
-    exit 0
-elif [[ -z $1 ]];then
+if [[ -z $1 ]];then
     echo "Erreur : il faut fournir des arguments"
     exit 1
-else
-    echo "Erreur : option non valide"
-    exit 1
 fi
+
+switch=$1
+shift
+
+case $switch in
+    "-u")
+        yaah-update;;
+    "-s")
+        yaah-install $@;;
+    "-r")
+        yaah-remove $@;;
+    "-rs")
+        yaah-remove -s $@;;
+    *)
+        echo "Erreur : option $switch inconnue"
+        yaah-help;;
+esac

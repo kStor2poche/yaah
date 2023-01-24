@@ -7,6 +7,6 @@ done
 if [[ ! -e /usr/local/etc/yaah/gitpath ]];then
     sudo mkdir /usr/local/etc/yaah/
     sudo mkdir /usr/local/share/yaah/
-    su -c "echo -n /usr/local/share/yaah/ > /usr/local/etc/yaah/gitpath"
+    sudo sh -c "echo -n /usr/local/share/yaah/ > /usr/local/etc/yaah/gitpath"
     exit
 fi

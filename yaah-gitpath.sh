@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 ## YAAH - YET ANOTHER AUR HELPER
 ## gitpath change script
 # to do : -use different directories depending on whether or not the script has been installed through locinstall.sh or not

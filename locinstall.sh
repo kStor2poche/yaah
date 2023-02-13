@@ -1,4 +1,6 @@
 #! /bin/bash
+## YAAH - YET ANOTHER AUR HELPER
+## local program installation script
 
 for i in yaah*;do
     sudo cp $i /usr/local/bin/${i/.sh}

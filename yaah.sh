@@ -30,7 +30,7 @@ case $switch in
         yaah-gitpath $@;;
     "-ge")
         yaah-gitpath -e $@;;
-    "-h")
+    "-h" | "--help")
         yaah-help;;
     *)
         echo -e "Erreur : option $switch inconnue\n"

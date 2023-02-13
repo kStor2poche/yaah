@@ -1,5 +1,6 @@
 #! /bin/bash
 ## YAAH - YET ANOTHER AUR HELPER
+## update script
 # to do : -know how much the update weighs/needs to be downloaded 
 #         -prompt user before dls
 #         -clean older versions of packages or at least have a flag to do it
@@ -34,6 +35,7 @@ for i in ${GITPATH}*;do
     fi
 done
 
+# "pretty" text display
 if [[ $nbu -eq 0 ]]; then
     echo "YAAH - Aucun paquet n'a été mis à jour"
 elif [[ $nbu -eq 1 ]]; then

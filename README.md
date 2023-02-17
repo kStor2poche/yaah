@@ -1,8 +1,8 @@
-## Yet another AUR helper  
+# Yet another AUR helper  
   
 A temporary side project of mine made to offer a simple command-line helper for the Arch user repository, in bash.  
   
-# Usage  
+## Usage  
 `yaah [switch] [packages]`  
 where `[switch]` can be one of  
 - `s` for installing packages  

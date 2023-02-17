@@ -4,9 +4,7 @@ A temporary side project of mine made to offer a simple command-line helper for 
   
 ## Usage  
   
-General usage is `yaah [switch] [packages]`  
-  
-where `[switch]` can be one of the following options :
+General usage is `yaah [switch] [packages]`, where `[switch]` can be one of the following options :
 - `-s` for installing packages  
 - `-r` for removing packages (currently not implemented)  
 - `-u` for updating the packages found in `$GITPATH`  

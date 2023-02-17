@@ -6,12 +6,16 @@
 exec 2>/dev/null
 
 if [[ -z $1 ]];then
-    echo -e Erreur : il faut fournir le chemin souhaité pour entreposer les paquets de l\'AUR\n
+    echo -e "Erreur : il faut fournir le chemin souhaité pour entreposer les paquets de l'AUR\n"
     yaah-help
     exit 1
 fi
 
-if [[ "-e" = $1 ]];then
+switch=${1::2}
+subswitch=${1:2}
+shift
+
+if [[ "e" = $switch ]];then
     echo -n "gitpath : "
     cat /usr/local/etc/yaah/gitpath
     printf "\n"

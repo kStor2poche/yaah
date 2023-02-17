@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 ## YAAH - YET ANOTHER AUR HELPER
 ## help script
 # to do : -not much

@@ -1,8 +1,8 @@
 #! /bin/bash
 ## YAAH - YET ANOTHER AUR HELPER
 ## install script
-# to do : -everything
-#         -maybe a search option
+# to do : -a search option
+#         -similar improvements as the ones listed in the update script
 
 
 if [[ -z $GITPATH ]]; then

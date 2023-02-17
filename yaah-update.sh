@@ -6,8 +6,8 @@
 #         -clean older versions of packages or at least have a flag to do it
 #         -recognize which packages have been updated in a better way than just
 #          checking for the result of git pull
-#         -garder en mémoire les paquets qui n'auraient pas pû être installés
-#          smh pour essayer des les installer à la prochaine run de yaah -u
+#         -keep a list a packages that failed to install to try and reinstall
+#          them in the next run of yaah -u
 
 if [[ -z $GITPATH ]]; then
     echo -e "Error : Please use command yaah -u and not yaah-update\n"

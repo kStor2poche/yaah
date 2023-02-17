@@ -21,9 +21,9 @@ if [[ -z $subswitch ]]; then
     case $switch in
         "-u")
             yaah-update;;
-        "-S")
+        "-s")
             yaah-install $@;;
-        "-R")
+        "-r")
             yaah-remove $@;;
         "-g")
             yaah-gitpath $@;;

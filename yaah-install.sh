@@ -13,18 +13,37 @@ fi
 nbi=0  # number of successfully installed packages
 nbni=0 # number of packages that could not be installed
 
-#
-# for a future search option
-#
-#if [[ "-" -eq ${1::1} ]]; then
-#    $switch=${1::2}
-#    $subswitch=${1:2}
-#    shift
-#    if [[ ! -z $subswitch ]]; then
-#        echo -e "Error : switch too long, please remove $subswitch\n"
-#        yaah-help
-#    fi
-#fi
+
+# search option
+
+search() {
+    result=$(curl -X 'GET' \
+       'https://aur.archlinux.org/rpc/v5/search/serch?by=name-desc' \
+       -H 'accept: application/json' | sed -e 's/,/,\n/')
+    pkgnb=${result:15:1}
+    echo $result
+    echo $pkgnb
+}
+
+if [[ ${1::1} == - ]]; then
+    switch=${1:1:2}
+    subswitch=${1:2}
+    shift
+    if [[ -n $subswitch ]]; then
+        echo -e "Error : switch too long, due to $subswitch\n"
+        yaah-help
+    fi
+fi
+
+if [[ $switch == s ]]; then
+    if [[ -n $2 ]]; then
+        echo "Search terms after $1 were ignored, expressions containing a space should be quoted."
+    fi
+    search $1
+    exit 0
+fi
+
+# rest of install script
 
 if [[ -z $1 ]]; then
     echo -e "Error : Please give at least one package to install\n"

@@ -1,13 +1,14 @@
 #! /bin/bash
 ## YAAH - YET ANOTHER AUR HELPER
 ## install script
-# to do : -a search option
-#         -similar improvements as the ones listed in the update script
+# to do : -similar improvements as the ones listed in the update script
 #         -prompt the user for cleaning if the package couldn't have been installed
 #         -handle the possibly uninstalled packages (e.g. due to ^C)
 #         -add setting for a default search pattern (name or name-desc or smthg else)
 #         -add a subswitch that overwrites this setting
 #         -if no search match for is found by name, prompt the user to change the pattern
+#         -fix bug where a "," in Description signs the end of the Description
+#         -handle cases where Description is null (e.g. for firefox_remove_ctrl_q) so that it doesn't shift everything
 
 
 if [[ -z $GITPATH ]]; then
@@ -27,7 +28,7 @@ search() {
        "https://aur.archlinux.org/rpc/v5/search/$1?by=name-desc" \
        -H 'accept: application/json' 2>/dev/null | sed -e "s/[\[,]/,\n/g")
     # format the results and put them in a variable
-    pkgnb=${result:15:1}
+    pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
     error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
     names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
     descs=$(echo -e "$result" | grep '"Description":"' | cut -d "\"" -f4)

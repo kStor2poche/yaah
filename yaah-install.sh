@@ -3,6 +3,11 @@
 ## install script
 # to do : -a search option
 #         -similar improvements as the ones listed in the update script
+#         -prompt the user for cleaning if the package couldn't have been installed
+#         -handle the possibly uninstalled packages (e.g. due to ^C)
+#         -add setting for a default search pattern (name or name-desc or smthg else)
+#         -add a subswitch that overwrites this setting
+#         -if no search match for is found by name, prompt the user to change the pattern
 
 
 if [[ -z $GITPATH ]]; then
@@ -10,19 +15,51 @@ if [[ -z $GITPATH ]]; then
     yaah-help
     exit 1
 fi
+cd ${GITPATH}
 nbi=0  # number of successfully installed packages
 nbni=0 # number of packages that could not be installed
-
 
 # search option
 
 search() {
+    # fetch the search
     result=$(curl -X 'GET' \
-       'https://aur.archlinux.org/rpc/v5/search/serch?by=name-desc' \
-       -H 'accept: application/json' | sed -e 's/,/,\n/')
+       "https://aur.archlinux.org/rpc/v5/search/$1?by=name-desc" \
+       -H 'accept: application/json' 2>/dev/null | sed -e "s/[\[,]/,\n/g")
+    # format the results and put them in a variable
     pkgnb=${result:15:1}
-    echo $result
-    echo $pkgnb
+    error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
+    names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
+    descs=$(echo -e "$result" | grep '"Description":"' | cut -d "\"" -f4)
+    vers=$(echo -e "$result" | grep '"Version":"' | cut -d "\"" -f4)
+    # IFS trickery
+    IFSbak=$IFS # IFS backup
+    IFS=$'\n' # use \n as the IFS for putting the variables in an array
+    namesa=($names)
+    descsa=($descs)
+    versa=($vers)
+    IFS=$IFSbak # restore IFS
+    # watch for errors from the aur api response
+    if [[ -n $error ]]; then
+        echo -e "La recherche à retourné une erreur : $error\n\n"
+        #break && search(name) ou un truc du genre si ça peut marcher ?
+        echo -e "\033[1;34m::\033[0m \033[1mRetenter une recherche uniquement sur le nom ? [O/n] \033[0m"
+        exit 2
+    fi
+
+    ## Affichage
+    
+    echo -e "\033[1;34m::\033[0m \033[1mNombre de paquets trouvés : $pkgnb\033[0m\n"
+    # suggérer un autre pattern de recherche si aucun de résultat trouvé
+    if [[ $SearchPattern -eq name && $pkgnb -eq 0 ]];then
+        echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
+        read yn
+    fi
+    for i in $(seq 0 $(($pkgnb - 1)));do
+        echo -ne "\033[1m${namesa[$i]}"
+        echo -e "\033[32m ${versa[$i]}\033[0m"
+        echo -e "    ${descsa[$i]}"
+    done
 }
 
 if [[ ${1::1} == - ]]; then
@@ -50,7 +87,6 @@ if [[ -z $1 ]]; then
     yaah-help
 fi
 
-cd ${GITPATH}
 # cycle through the packages found in $@ and install them
 for i in ${@}; do
     git clone "https://aur.archlinux.org/$i.git"
@@ -68,7 +104,7 @@ done
 
 # "pretty" text display
 printf "\n"
-if [[ $(( nbi + nbni )) -eq 0 ]]; then
+if [[ $nbi -eq 0 ]]; then
     echo "YAAH - Aucun paquet n'a été installé"
 elif [[ $nbi -eq 1 ]]; then
     echo -n "YAAH - $nbi paquet a été installé : "
@@ -82,20 +118,20 @@ else
     printf "\n"
 fi
 if [[ $nbni -eq 1 ]]; then
-    echo -n "et $nbni paquet n'a été installé : "
+    echo -n "$nbni paquet devait être installé : "
     cat pkgni.tmp
     printf "\n"
 elif [[ $nbni -ne 0 ]]; then
-    echo -n "et $nbni paquets n'ont pas été installés : "
+    echo -n "$nbni paquets auraient du être installés : "
     for i in $(cat pkgni.tmp);do
         echo -n "$i "
     done
     printf "\n"
 fi
 
-if [[ -e ../pkg.tmp ]];then
-    rm ../pkg.tmp
+if [[ -e pkg.tmp ]];then
+    rm pkg.tmp
 fi
-if [[ -e ../pkgni.tmp ]];then
-    rm ../pkgni.tmp
+if [[ -e pkgni.tmp ]];then
+    rm pkgni.tmp
 fi

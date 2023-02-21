@@ -4,11 +4,11 @@
 # to do : -similar improvements as the ones listed in the update script
 #         -prompt the user for cleaning if the package couldn't have been installed
 #         -handle the possibly uninstalled packages (e.g. due to ^C)
-#         -add setting for a default search pattern (name or name-desc or smthg else)
-#         -add a subswitch that overwrites this setting
 #         -if no search match for is found by name, prompt the user to change the pattern
 #         -fix bug where a "," in Description signs the end of the Description
 #         -handle cases where Description is null (e.g. for firefox_remove_ctrl_q) so that it doesn't shift everything
+#         -more specific help for scenarios such as the one in line 39
+#         -use a pager (maybe less, though coloring'll have to be done on stderr) to display the package search result if it's longer than the terminal height
 
 
 if [[ -z $GITPATH ]]; then
@@ -16,16 +16,37 @@ if [[ -z $GITPATH ]]; then
     yaah-help
     exit 1
 fi
-cd ${GITPATH}
-nbi=0  # number of successfully installed packages
-nbni=0 # number of packages that could not be installed
 
 # search option
 
 search() {
+    # check for a forced search pattern, and apply it to the search mechanism
+    if [[ ${1::2} == "--" ]]; then
+        tmpswitch=${1:2}
+        IFSbak=$IFS
+        IFS=$"="
+        read -r switch subswitch <<< "$tmpswitch"
+        IFS=$IFSbak
+        shift
+        if [[ $switch != pattern ]]; then
+            echo "option \"$switch\" inconnue"
+            yaah-help
+            exit 1
+        fi
+        if [[ ! $subswitch =~ ^(name|name-desc|keywords|conflicts|provides)$ ]]; then
+            echo -e "Error : please give a valid search pattern for the search function to use\n"
+            yaah-help # have a switch to get specific help
+            exit 1
+        fi
+        SearchPattern=$subswitch
+    fi
+    if [[ -n $2 ]]; then
+        echo "Search terms after $1 were ignored, expressions containing a space should be quoted."
+    fi
+    # WRONG SUBSTITUTION WITH AN a SOMEWHERE
     # fetch the search
     result=$(curl -X 'GET' \
-       "https://aur.archlinux.org/rpc/v5/search/$1?by=name-desc" \
+       "https://aur.archlinux.org/rpc/v5/search/$1?by=$SearchPattern" \
        -H 'accept: application/json' 2>/dev/null | sed -e "s/[\[,]/,\n/g")
     # format the results and put them in a variable
     pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
@@ -43,8 +64,13 @@ search() {
     # watch for errors from the aur api response
     if [[ -n $error ]]; then
         echo -e "La recherche à retourné une erreur : $error\n\n"
-        #break && search(name) ou un truc du genre si ça peut marcher ?
-        echo -e "\033[1;34m::\033[0m \033[1mRetenter une recherche uniquement sur le nom ? [O/n] \033[0m"
+        if [[ $pkgnb -ne 0 ]] && [[ $SearchPattern != name ]];then
+            echo -e "\033[1;34m::\033[0m \033[1mRetenter une recherche uniquement sur le nom ? [O/n] \033[0m"
+            read yn
+            if [[ ${yn,,} = y ]]; then
+                search --pattern=name-desc $1
+            fi
+        fi
         exit 2
     fi
 
@@ -52,9 +78,13 @@ search() {
     
     echo -e "\033[1;34m::\033[0m \033[1mNombre de paquets trouvés : $pkgnb\033[0m\n"
     # suggérer un autre pattern de recherche si aucun de résultat trouvé
-    if [[ $SearchPattern -eq name && $pkgnb -eq 0 ]];then
+    if [[ $SearchPattern -ne name && $pkgnb -eq 0 ]];then
         echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
         read yn
+        if [[ ${yn,,} = y ]]; then
+            search --pattern=name $1
+        fi
+        exit 2
     fi
     for i in $(seq 0 $(($pkgnb - 1)));do
         echo -ne "\033[1m${namesa[$i]}"
@@ -74,15 +104,15 @@ if [[ ${1::1} == - ]]; then
 fi
 
 if [[ $switch == s ]]; then
-    if [[ -n $2 ]]; then
-        echo "Search terms after $1 were ignored, expressions containing a space should be quoted."
-    fi
-    search $1
+    search $@
     exit 0
 fi
 
-# rest of install script
+# install part of the script
 
+cd ${GITPATH}
+nbi=0  # number of successfully installed packages
+nbni=0 # number of packages that could not be installed
 if [[ -z $1 ]]; then
     echo -e "Error : Please give at least one package to install\n"
     yaah-help

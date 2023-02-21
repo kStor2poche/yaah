@@ -5,10 +5,10 @@
 #         -prompt the user for cleaning if the package couldn't have been installed
 #         -handle the possibly uninstalled packages (e.g. due to ^C)
 #         -if no search match for is found by name, prompt the user to change the pattern
-#         -fix bug where a "," in Description signs the end of the Description
 #         -handle cases where Description is null (e.g. for firefox_remove_ctrl_q) so that it doesn't shift everything
 #         -more specific help for scenarios such as the one in line 39
 #         -use a pager (maybe less, though coloring'll have to be done on stderr) to display the package search result if it's longer than the terminal height
+#         -target the 'too much packages' error in a better way
 
 
 if [[ -z $GITPATH ]]; then
@@ -43,16 +43,17 @@ search() {
     if [[ -n $2 ]]; then
         echo "Search terms after $1 were ignored, expressions containing a space should be quoted."
     fi
-    # WRONG SUBSTITUTION WITH AN a SOMEWHERE
+
     # fetch the search
     result=$(curl -X 'GET' \
        "https://aur.archlinux.org/rpc/v5/search/$1?by=$SearchPattern" \
-       -H 'accept: application/json' 2>/dev/null | sed -e "s/[\[,]/,\n/g")
+       -H 'accept: application/json' 2>/dev/null | sed -r -e "s/(\[|,\"|,\{)/,\n\"/g")
+    echo -e "$result"
     # format the results and put them in a variable
     pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
     error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
     names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
-    descs=$(echo -e "$result" | grep '"Description":"' | cut -d "\"" -f4)
+    descs=$(echo -e "$result" | grep '"Description":"' | cut -d "\"" -f5)
     vers=$(echo -e "$result" | grep '"Version":"' | cut -d "\"" -f4)
     # IFS trickery
     IFSbak=$IFS # IFS backup
@@ -61,6 +62,7 @@ search() {
     descsa=($descs)
     versa=($vers)
     IFS=$IFSbak # restore IFS
+
     # watch for errors from the aur api response
     if [[ -n $error ]]; then
         echo -e "La recherche à retourné une erreur : $error\n\n"

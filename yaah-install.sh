@@ -48,7 +48,6 @@ search() {
     result=$(curl -X 'GET' \
        "https://aur.archlinux.org/rpc/v5/search/$1?by=$SearchPattern" \
        -H 'accept: application/json' 2>/dev/null | sed -r -e "s/(\[|,\"|,\{)/,\n\"/g")
-    echo -e "$result"
     # format the results and put them in a variable
     pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
     error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
@@ -65,25 +64,26 @@ search() {
 
     # watch for errors from the aur api response
     if [[ -n $error ]]; then
-        echo -e "La recherche à retourné une erreur : $error\n\n"
-        if [[ $pkgnb -ne 0 ]] && [[ $SearchPattern != name ]];then
-            echo -e "\033[1;34m::\033[0m \033[1mRetenter une recherche uniquement sur le nom ? [O/n] \033[0m"
+        echo -e "The package search query returned an error : $error"
+        # and prompt for using a different search pattern if there are too much results
+        if [[ $error = "Too many package results." ]] && [[ $SearchPattern != name ]];then
+            printmsg -ne "\nTry again, only searching by name ? [Y/n] "
             read yn
-            if [[ ${yn,,} = y ]]; then
-                search --pattern=name-desc $1
+            if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
+                search --pattern=name $1
             fi
         fi
         exit 2
     fi
 
-    ## Affichage
+    ## Display search results
     
-    echo -e "\033[1;34m::\033[0m \033[1mNombre de paquets trouvés : $pkgnb\033[0m\n"
+    printmsg "Nombre de paquets trouvés : $pkgnb"
     # suggérer un autre pattern de recherche si aucun de résultat trouvé
     if [[ $SearchPattern -ne name && $pkgnb -eq 0 ]];then
         echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
         read yn
-        if [[ ${yn,,} = y ]]; then
+        if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
             search --pattern=name $1
         fi
         exit 2

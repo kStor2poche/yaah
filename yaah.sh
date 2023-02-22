@@ -8,9 +8,18 @@
 #         -make a (print and - maybe not, for even the tty supports colors -) printcolor function for pacman-like string formatting (cf line 39 of yaah-install.sh) (could export it with export -f )
 #         -search a way to implement locales (or just write everything in enlish)
 
+# function definition
+printmsg() {
+    echo -ne "\033[1;34m" >&2
+    echo -n ":: "
+    echo -ne "\033[0m\033[1m" >&2
+    echo $@
+    echo -ne "\033[0m" >&2
+}
 # global script variables
 export GITPATH=$(cat /usr/local/etc/yaah/gitpath)
 export SearchPattern=name-desc # to change to something put in the config file
+export -f printmsg
 
 if [[ -z $1 ]];then
     echo -e "Erreur : il faut fournir des arguments\n"

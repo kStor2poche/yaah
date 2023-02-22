@@ -5,7 +5,6 @@
 #         -prompt the user for cleaning if the package couldn't have been installed
 #         -handle the possibly uninstalled packages (e.g. due to ^C)
 #         -if no search match for is found by name, prompt the user to change the pattern
-#         -handle cases where Description is null (e.g. for firefox_remove_ctrl_q) so that it doesn't shift everything
 #         -more specific help for scenarios such as the one in line 39
 #         -use a pager (maybe less, though coloring'll have to be done on stderr) to display the package search result if it's longer than the terminal height
 #         -target the 'too much packages' error in a better way
@@ -52,7 +51,8 @@ search() {
     pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
     error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
     names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
-    descs=$(echo -e "$result" | grep '"Description":"' | cut -d "\"" -f5)
+    descs=$(echo -e "$result" | grep '"Description":' | sed -e 's/"Description":null/"Description":"No description provided"/g'| cut -d "\"" -f5)
+    descs=${descs/%,}
     vers=$(echo -e "$result" | grep '"Version":"' | cut -d "\"" -f4)
     # IFS trickery
     IFSbak=$IFS # IFS backup
@@ -88,9 +88,13 @@ search() {
         fi
         exit 2
     fi
+    echo ""
     for i in $(seq 0 $(($pkgnb - 1)));do
-        echo -ne "\033[1m${namesa[$i]}"
-        echo -e "\033[32m ${versa[$i]}\033[0m"
+        echo -ne "\033[1m" >&2
+        echo -n "${namesa[$i]}"
+        echo -ne "\033[32m" >&2
+        echo " ${versa[$i]}"
+        echo -ne "\033[0m" >&2
         echo -e "    ${descsa[$i]}"
     done
 }

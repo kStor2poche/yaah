@@ -18,7 +18,6 @@ if [[ "e" = $switch ]];then
     printf "\n"
     exit 0
 else
-    printf "nique ton père $@\n"
     echo -n "$(readlink -f $1)/" > /usr/local/etc/yaah/gitpath
 fi
 

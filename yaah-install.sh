@@ -7,7 +7,7 @@
 #         -if no search match for is found by name, prompt the user to change the pattern
 #         -more specific help for scenarios such as the one in line 39
 #         -use a pager (maybe less, though coloring'll have to be done on stderr) to display the package search result if it's longer than the terminal height
-#         -target the 'too much packages' error in a better way
+#         -put an [installed] after the search result if the package has already been installed with yaah
 
 
 if [[ -z $GITPATH ]]; then
@@ -52,7 +52,6 @@ search() {
     error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
     names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
     descs=$(echo -e "$result" | grep '"Description":' | sed -e 's/"Description":null/"Description":"No description provided"/g'| cut -d "\"" -f5)
-    descs=${descs/%,}
     vers=$(echo -e "$result" | grep '"Version":"' | cut -d "\"" -f4)
     # IFS trickery
     IFSbak=$IFS # IFS backup
@@ -79,7 +78,7 @@ search() {
     ## Display search results
     
     printmsg "Nombre de paquets trouvés : $pkgnb"
-    # suggérer un autre pattern de recherche si aucun de résultat trouvé
+    # suggérer un autre pattern de recherche si aucun résultat trouvé
     if [[ $SearchPattern -ne name && $pkgnb -eq 0 ]];then
         echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
         read yn
@@ -96,7 +95,7 @@ search() {
         echo " ${versa[$i]}"
         echo -ne "\033[0m" >&2
         echo -e "    ${descsa[$i]}"
-    done
+    done | less
 }
 
 if [[ ${1::1} == - ]]; then

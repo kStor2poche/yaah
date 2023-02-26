@@ -4,10 +4,13 @@
 # to do : -similar improvements as the ones listed in the update script
 #         -prompt the user for cleaning if the package couldn't have been installed
 #         -handle the possibly uninstalled packages (e.g. due to ^C)
+#          --> use a local repository rather than using a "gitpath"
 #         -if no search match for is found by name, prompt the user to change the pattern
 #         -more specific help for scenarios such as the one in line 39
 #         -put an [installed] after the search result if the package has already been installed with yaah
-
+#         -prompt the user to know if he wants to use a pager and maybe add a configuration option always enable or disable the pager or prompt the user every time
+#         -implement the starts-with search option
+#         -also implement a package lookup option
 
 if [[ -z $GITPATH ]]; then
     echo -e "Error : Please use command yaah -s and not yaah-install\n"

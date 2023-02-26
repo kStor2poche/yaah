@@ -2,6 +2,7 @@
 ## YAAH - YET ANOTHER AUR HELPER
 ## help script
 # to do : -not much
+#         -list all the possible search options
 
 if [[ -z $1 ]];then
     echo -e "\e[3mYAAH - YET ANOTHER AUR HELPER\e[0m\n"

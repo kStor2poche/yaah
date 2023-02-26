@@ -15,6 +15,6 @@ General usage is `yaah [switch] [packages]`, where `[switch]` can be one of the 
   
 ## To do
   
-Some options are planned to be implemented before a first proper release can be made, namely package search and package removal with different options depending on how much cleaning the user is willing to have done (i.e. removing packages that are already built or not).  
+Some options will be implemented before a first proper release can be made, namely package search and package removal with different options depending on how much cleaning the user is willing to have done (i.e. removing packages that are already built or not).  
   
-There are also some minor possible improvements listed in each script's first lines.  
+There are also some possible improvements/a roadmap listed in each script's first lines.  

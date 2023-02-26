@@ -10,11 +10,11 @@
 
 # function definition
 printmsg() {
-    echo -ne "\033[1;34m" >&2
+    echo -ne "\033[1;34m"
     echo -n ":: "
-    echo -ne "\033[0m\033[1m" >&2
-    echo $@
-    echo -ne "\033[0m" >&2
+    echo -ne "\033[0m\033[1m"
+    echo "$@"
+    echo -ne "\033[0m"
 }
 # global script variables
 export GITPATH=$(cat /usr/local/etc/yaah/gitpath)

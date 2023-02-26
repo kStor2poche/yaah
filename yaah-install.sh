@@ -6,7 +6,6 @@
 #         -handle the possibly uninstalled packages (e.g. due to ^C)
 #         -if no search match for is found by name, prompt the user to change the pattern
 #         -more specific help for scenarios such as the one in line 39
-#         -use a pager (maybe less, though coloring'll have to be done on stderr) to display the package search result if it's longer than the terminal height
 #         -put an [installed] after the search result if the package has already been installed with yaah
 
 
@@ -66,7 +65,7 @@ search() {
         echo -e "The package search query returned an error : $error"
         # and prompt for using a different search pattern if there are too much results
         if [[ $error = "Too many package results." ]] && [[ $SearchPattern != name ]];then
-            printmsg -ne "\nTry again, only searching by name ? [Y/n] "
+            printmsg -ne "Try again, only searching by name ? [Y/n] "
             read yn
             if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
                 search --pattern=name $1
@@ -77,7 +76,6 @@ search() {
 
     ## Display search results
     
-    printmsg "Nombre de paquets trouvés : $pkgnb"
     # suggérer un autre pattern de recherche si aucun résultat trouvé
     if [[ $SearchPattern -ne name && $pkgnb -eq 0 ]];then
         echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
@@ -87,15 +85,27 @@ search() {
         fi
         exit 2
     fi
-    echo ""
-    for i in $(seq 0 $(($pkgnb - 1)));do
-        echo -ne "\033[1m" >&2
-        echo -n "${namesa[$i]}"
-        echo -ne "\033[32m" >&2
-        echo " ${versa[$i]}"
-        echo -ne "\033[0m" >&2
-        echo -e "    ${descsa[$i]}"
-    done | less
+    if [[ $((2 * pkgnb)) -ge $(tput lines) ]];then
+        { printmsg -e "Nombre de paquets trouvés : $pkgnb\n"; 
+        for i in $(seq 0 $(($pkgnb - 1)));do
+            echo -ne "\033[1m"
+            echo -n "${namesa[$i]}"
+            echo -ne "\033[32m"
+            echo " ${versa[$i]}"
+            echo -ne "\033[0m"
+            echo -e "    ${descsa[$i]}"
+        done } | less -R
+    else
+        printmsg -e "Nombre de paquets trouvés : $pkgnb\n"
+        for i in $(seq 0 $(($pkgnb - 1)));do
+            echo -ne "\033[1m"
+            echo -n "${namesa[$i]}"
+            echo -ne "\033[32m"
+            echo " ${versa[$i]}"
+            echo -ne "\033[0m"
+            echo -e "    ${descsa[$i]}"
+        done
+    fi
 }
 
 if [[ ${1::1} == - ]]; then
@@ -153,16 +163,19 @@ else
     done
     printf "\n"
 fi
-if [[ $nbni -eq 1 ]]; then
-    echo -n "$nbni paquet devait être installé : "
-    cat pkgni.tmp
-    printf "\n"
-elif [[ $nbni -ne 0 ]]; then
-    echo -n "$nbni paquets auraient du être installés : "
-    for i in $(cat pkgni.tmp);do
-        echo -n "$i "
-    done
-    printf "\n"
+if [[ $nbni -ne 0 ]]; then
+    if [[ $nbni -eq 1 ]]; then
+        echo -n "$nbni paquet devait être installé : "
+        cat pkgni.tmp
+        printf "\n"
+    else
+        echo -n "$nbni paquets auraient du être installés : "
+        for i in $(cat pkgni.tmp);do
+            echo -n "$i "
+        done
+        printf "\n"
+    fi
+    #clean pgkni.tmp --> to implement
 fi
 
 if [[ -e pkg.tmp ]];then

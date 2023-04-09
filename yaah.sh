@@ -22,7 +22,7 @@ export SearchPattern=name-desc # to change to something put in the config file
 export -f printmsg
 
 if [[ -z $1 ]];then
-    echo -e "Erreur : il faut fournir des arguments\n"
+    echo -e "Erreur : il faut fournir des arguments\n" >&2
     yaah-help
     exit 1
 fi

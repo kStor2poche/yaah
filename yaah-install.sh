@@ -89,7 +89,7 @@ search() {
         exit 2
     fi
     if [[ $((2 * pkgnb)) -ge $(tput lines) ]];then
-        { printmsg -e "Nombre de paquets trouvés : $pkgnb\n"; 
+        { printmsg -e "Nombre de paquets trouvés : $pkgnb"; 
         for i in $(seq 0 $(($pkgnb - 1)));do
             echo -ne "\033[1m"
             echo -n "${namesa[$i]}"
@@ -99,7 +99,10 @@ search() {
             echo -e "    ${descsa[$i]}"
         done } | less -R
     else
-        printmsg -e "Nombre de paquets trouvés : $pkgnb\n"
+        printmsg -e "Nombre de paquets trouvés : $pkgnb"
+        if [[ $pkgnb -ne 0 ]];then
+            echo ""
+        fi
         for i in $(seq 0 $(($pkgnb - 1)));do
             echo -ne "\033[1m"
             echo -n "${namesa[$i]}"
@@ -140,8 +143,7 @@ fi
 for i in ${@}; do
     git clone "https://aur.archlinux.org/$i.git"
     cd $i
-    makepkg -si
-    if [[ $? -eq 0 ]]; then
+    if makepkg -si; then
         nbi=$(( $nbi + 1 ))
         echo -n "$i " > ../pkg.tmp
     else

@@ -8,6 +8,8 @@
 #          checking for the result of git pull
 #         -keep a list a packages that failed to install to try and reinstall
 #          them in the next run of yaah -u
+#         -currently misses some updates, e.g. one in ani-cli. Maybe try to see why.
+#         -one first step to fix this could be to do the version check using the .git/logs/refs/heads/master to see when the package was last pulled from git and confronting that to the LastModified field of the Multiple package lookup search results to build a list of packages that need to be updated
 
 if [[ -z $GITPATH ]]; then
     echo -e "Error : Please use command yaah -u and not yaah-update\n"
@@ -20,16 +22,17 @@ nbu=0
 for i in ${GITPATH}*;do
     if [[ -d $i ]];then
         cd $i
-        pkg=$(echo $i | cut -d "/" -f "6")
+        pkg=${i##*/}
         git fetch --dry-run 2> ../fetch.tmp
         ret=$?
         fetch=$(head -n1 ../fetch.tmp | cut -c1-6)
-        if [[ $ret = 0 && -f PKGBUILD && -n $fetch ]];then
+        if [[ $ret = 0 && -n $fetch ]];then
             git pull > /dev/null
-            makepkg -si    ## à update
-            if [[ $? -eq 0 ]];then
-                echo -n "$pkg " >> ../pkg.tmp
-                nbu=$(( $nbu + 1 ))
+            if [[ -f PKGBUILD ]];then
+                if makepkg -si;then
+                    echo -n "$pkg " >> ../pkg.tmp
+                    nbu=$(( $nbu + 1 ))
+                fi
             fi
         fi
     fi

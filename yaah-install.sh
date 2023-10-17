@@ -51,7 +51,7 @@ search() {
        -H 'accept: application/json' 2>/dev/null | sed -r -e "s/(\[|,\"|,\{)/,\n\"/g")
     # format the results and put them in a variable
     pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
-    error=$(echo -e "$result" | grep \{\"error | cut -d "\"" -f4)
+    error=$(echo -e "$result" | grep '\{\"error' | cut -d "\"" -f4)
     names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
     descs=$(echo -e "$result" | grep '"Description":' | sed -e 's/"Description":null/"Description":"No description provided"/g'| cut -d "\"" -f5)
     vers=$(echo -e "$result" | grep '"Version":"' | cut -d "\"" -f4)
@@ -69,7 +69,7 @@ search() {
         # and prompt for using a different search pattern if there are too much results
         if [[ $error = "Too many package results." ]] && [[ $SearchPattern != name ]];then
             printmsg -ne "Try again, only searching by name ? [Y/n] "
-            read yn
+            read -r yn
             if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
                 search --pattern=name $1
             fi
@@ -82,12 +82,13 @@ search() {
     # suggérer un autre pattern de recherche si aucun résultat trouvé
     if [[ $SearchPattern -ne name && $pkgnb -eq 0 ]];then
         echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
-        read yn
+        read -r yn
         if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
             search --pattern=name $1
         fi
         exit 2
     fi
+    # on affiche les résultats !
     if [[ $((2 * pkgnb)) -ge $(tput lines) ]];then
         { printmsg -e "Nombre de paquets trouvés : $pkgnb"; 
         for i in $(seq 0 $(($pkgnb - 1)));do

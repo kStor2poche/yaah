@@ -1,6 +1,7 @@
 #! /bin/bash
 ## YAAH - YET ANOTHER AUR HELPER
 # to do : -Query the database for installed packages
+#         -use Mutexes
 #         -an install/update script that maybe doesn't rely on makepkg or at least not in the way it currently does
 #          -> use curl with the aur rpc interface : https://aur.archlinux.org/rpc/swagger
 #         -move every script into one single big script

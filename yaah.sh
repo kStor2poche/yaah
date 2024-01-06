@@ -6,7 +6,6 @@
 #          -> use curl with the aur rpc interface : https://aur.archlinux.org/rpc/swagger
 #         -move every script into one single big script
 #         -make a function for switch handling ?
-#         -make a (print and - maybe not, for even the tty supports colors -) printcolor function for pacman-like string formatting (cf line 39 of yaah-install.sh) (could export it with export -f )
 #         -search a way to implement locales (or just write everything in enlish)
 
 # function definition

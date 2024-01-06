@@ -51,7 +51,7 @@ search() {
        -H 'accept: application/json' 2>/dev/null | sed -r -e "s/(\[|,\"|,\{)/,\n\"/g")
     # format the results and put them in a variable
     pkgnb=$(echo -e "$result" | grep '"resultcount":' | cut -d "\"" -f3 | sed "s/[,:]//g")
-    error=$(echo -e "$result" | grep '\{\"error' | cut -d "\"" -f4)
+    error=$(echo -e "$result" | grep '{"error' | cut -d "\"" -f4)
     names=$(echo -e "$result" | grep '"Name":"' | cut -d "\"" -f4)
     descs=$(echo -e "$result" | grep '"Description":' | sed -e 's/"Description":null/"Description":"No description provided"/g'| cut -d "\"" -f5)
     vers=$(echo -e "$result" | grep '"Version":"' | cut -d "\"" -f4)
@@ -144,7 +144,7 @@ fi
 for i in ${@}; do
     git clone "https://aur.archlinux.org/$i.git"
     cd $i
-    if makepkg -si; then
+    if makepkg -csi; then
         nbi=$(( $nbi + 1 ))
         echo -n "$i " > ../pkg.tmp
     else

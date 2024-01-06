@@ -29,7 +29,7 @@ for i in ${GITPATH}*;do
         if [[ $ret = 0 && -n $fetch ]];then
             git pull > /dev/null
             if [[ -f PKGBUILD ]];then
-                if makepkg -si;then
+                if makepkg -sic;then
                     echo -n "$pkg " >> ../pkg.tmp
                     nbu=$(( $nbu + 1 ))
                 fi

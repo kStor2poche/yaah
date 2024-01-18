@@ -3,8 +3,8 @@
 ## local program installation script
 
 for i in yaah*;do
-    sudo cp $i /usr/local/bin/${i/.sh}
-    echo /usr/local/bin/${i/.sh}
+    sudo cp "$i" /usr/local/bin/"${i/.sh}"
+    echo /usr/local/bin/"${i/.sh}"
 done
 if [[ ! -e /usr/local/etc/yaah/gitpath ]];then
     sudo mkdir /usr/local/etc/yaah/

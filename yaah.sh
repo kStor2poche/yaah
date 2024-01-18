@@ -17,7 +17,8 @@ printmsg() {
     echo -ne "\033[0m"
 }
 # global script variables
-export GITPATH=$(cat /usr/local/etc/yaah/gitpath)
+GITPATH=$(cat /usr/local/etc/yaah/gitpath)
+export GITPATH
 export SearchPattern=name-desc # to change to something put in the config file
 export -f printmsg
 
@@ -36,11 +37,11 @@ if [[ -z $subswitch ]]; then
         "-u")
             yaah-update;;
         "-s")
-            yaah-install $@;;
+            yaah-install "$@";;
         "-r")
-            yaah-remove $@;;
+            yaah-remove "$@";;
         "-g")
-            yaah-gitpath $@;;
+            yaah-gitpath "$@";;
         "-h" | "--help")
             yaah-help;;
         *)
@@ -52,11 +53,11 @@ else
         "-u")
             yaah-update;;
         "-s")
-            yaah-install -$subswitch $@;;
+            yaah-install -"$subswitch" "$@";;
         "-r")
-            yaah-remove -$subswitch $@;;
+            yaah-remove -"$subswitch" "$@";;
         "-g")
-            yaah-gitpath -$subswitch $@;;
+            yaah-gitpath -"$subswitch" "$@";;
         "-h" | "--help")
             yaah-help;;
         *)

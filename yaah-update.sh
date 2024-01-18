@@ -19,9 +19,9 @@ fi
 nbu=0
 
 # cycle through the packages found in $GITPATH
-for i in ${GITPATH}*;do
+for i in "${GITPATH}"*;do
     if [[ -d $i ]];then
-        cd $i
+        cd "$i"
         pkg=${i##*/}
         git fetch --dry-run 2> ../fetch.tmp
         ret=$?
@@ -31,7 +31,7 @@ for i in ${GITPATH}*;do
             if [[ -f PKGBUILD ]];then
                 if makepkg -sic;then
                     echo -n "$pkg " >> ../pkg.tmp
-                    nbu=$(( $nbu + 1 ))
+                    nbu=$((nbu + 1))
                 fi
             fi
         fi

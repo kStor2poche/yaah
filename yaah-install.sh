@@ -71,7 +71,7 @@ search() {
             printmsg -ne "Try again, only searching by name ? [Y/n] "
             read -r yn
             if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
-                search --pattern=name $1
+                search --pattern=name "$1"
             fi
         fi
         exit 2
@@ -80,18 +80,18 @@ search() {
     ## Display search results
     
     # suggérer un autre pattern de recherche si aucun résultat trouvé
-    if [[ $SearchPattern -ne name && $pkgnb -eq 0 ]];then
+    if [[ $SearchPattern != "name" && $pkgnb -eq 0 ]];then
         echo -n "Réessayer la recherche sur les descriptions en plus des noms ? [O/n]"
         read -r yn
         if [[ ${yn,,} = y ]] || [[ -z ${yn} ]]; then
-            search --pattern=name $1
+            search --pattern=name "$1"
         fi
         exit 2
     fi
     # on affiche les résultats !
     if [[ $((2 * pkgnb)) -ge $(tput lines) ]];then
         { printmsg -e "Nombre de paquets trouvés : $pkgnb"; 
-        for i in $(seq 0 $(($pkgnb - 1)));do
+        for i in $(seq 0 $((pkgnb - 1)));do
             echo -ne "\033[1m"
             echo -n "${namesa[$i]}"
             echo -ne "\033[32m"
@@ -104,7 +104,7 @@ search() {
         if [[ $pkgnb -ne 0 ]];then
             echo ""
         fi
-        for i in $(seq 0 $(($pkgnb - 1)));do
+        for i in $(seq 0 $((pkgnb - 1)));do
             echo -ne "\033[1m"
             echo -n "${namesa[$i]}"
             echo -ne "\033[32m"
@@ -126,13 +126,13 @@ if [[ ${1::1} == - ]]; then
 fi
 
 if [[ $switch == s ]]; then
-    search $@
+    search "$@"
     exit 0
 fi
 
 # install part of the script
 
-cd ${GITPATH}
+cd "${GITPATH}"
 nbi=0  # number of successfully installed packages
 nbni=0 # number of packages that could not be installed
 if [[ -z $1 ]]; then
@@ -141,14 +141,14 @@ if [[ -z $1 ]]; then
 fi
 
 # cycle through the packages found in $@ and install them
-for i in ${@}; do
+for i in "$@"; do
     git clone "https://aur.archlinux.org/$i.git"
-    cd $i
+    cd "$i"
     if makepkg -csi; then
-        nbi=$(( $nbi + 1 ))
+        nbi=$(( nbi + 1 ))
         echo -n "$i " > ../pkg.tmp
     else
-        nbni=$(( $nbni + 1 ))
+        nbni=$(( nbni + 1 ))
         echo -n "$i " > ../pkgni.tmp
     fi
     cd ..

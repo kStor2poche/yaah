@@ -12,16 +12,16 @@ fi
 switch=${1:1:1}
 subswitch=${1:2}
 
-if [[ "e" = $switch ]];then
+if [[ $switch = "e" ]];then
     echo -n "gitpath : "
     cat /usr/local/etc/yaah/gitpath
     printf "\n"
     exit 0
 else
-    echo -n "$(readlink -f $1)/" > /usr/local/etc/yaah/gitpath
+    write_success=$(echo -n "$(readlink -f "$1")/" > /usr/local/etc/yaah/gitpath)
 fi
 
-if [[ $? != 0 ]];then
+if [[ $write_success != 0 ]];then
     echo "Could not overwrite gitpath, please run command as root"
     exit 2
 fi
